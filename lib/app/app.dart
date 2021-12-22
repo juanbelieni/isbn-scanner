@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:isbn_reader/app/book/book_details_screen.dart';
-import 'package:isbn_reader/app/home/home_screen.dart';
+import 'package:isbn_scanner/app/book/book_details_screen.dart';
+import 'package:isbn_scanner/app/home/home_screen.dart';
 
 class App extends StatelessWidget {
   const App({Key? key}) : super(key: key);
@@ -14,7 +14,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      title: 'ISBN reader',
+      title: 'ISBN Scanner',
       debugShowCheckedModeBanner: false,
       home: HomeScreen(),
       // home: _mockBookDetails(),

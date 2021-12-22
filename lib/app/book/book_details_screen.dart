@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:isbn_reader/app/book/providers/book_provider.dart';
-import 'package:isbn_reader/app/shared/providers/saved_books_provider.dart';
-import 'package:isbn_reader/domain/book/book.dart';
+import 'package:isbn_scanner/app/book/providers/book_provider.dart';
+import 'package:isbn_scanner/app/shared/providers/saved_books_provider.dart';
+import 'package:isbn_scanner/domain/book/book.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -76,10 +76,15 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
     await Share.share(message);
   }
 
+  void _handleRefresh() {
+    ref.refresh(bookProvider(widget.isbn));
+  }
+
   Widget _buildBookDetails() {
     final book = ref.read(bookProvider(widget.isbn)).value!;
 
     return ListView(
+      padding: const EdgeInsets.all(16),
       children: [
         Center(
           child: Container(
@@ -198,7 +203,9 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
   }
 
   Widget _buildBookError() {
-    return Center(
+    return Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(16),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -206,6 +213,7 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
           const SizedBox(height: 24),
           Text(
             'Oops! Something went wrong.',
+            textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.w500,
               fontSize: 18,
@@ -213,6 +221,30 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
             ),
           ),
           const SizedBox(height: 16),
+          SizedBox(
+            width: 120,
+            child: ElevatedButton(
+              onPressed: _handleRefresh,
+              style: ElevatedButton.styleFrom(
+                primary: Colors.black,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.refresh, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Refresh',
+                    style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -251,13 +283,10 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
           const SizedBox(width: 8),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        child: asyncBook.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) => _buildBookError(),
-          data: (book) => _buildBookDetails(),
-        ),
+      body: asyncBook.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => _buildBookError(),
+        data: (book) => _buildBookDetails(),
       ),
     );
   }

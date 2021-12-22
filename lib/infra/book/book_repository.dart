@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:html/parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:isbn_reader/domain/book/book.dart';
+import 'package:isbn_scanner/domain/book/book.dart';
 
 class BookRepository implements IBookRepository {
   final _http = Dio(

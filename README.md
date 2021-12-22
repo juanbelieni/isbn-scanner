@@ -1,4 +1,4 @@
-# isbn_reader
+# isbn_scanner
 
 A new Flutter project.
 

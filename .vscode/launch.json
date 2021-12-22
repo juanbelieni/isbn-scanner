@@ -5,12 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "isbn_reader",
+            "name": "isbn_scanner",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "isbn_reader (profile mode)",
+            "name": "isbn_scanner (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"

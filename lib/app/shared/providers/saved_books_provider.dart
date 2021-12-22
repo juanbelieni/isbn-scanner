@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:isbn_reader/app/book/providers/book_repository_provider.dart';
-import 'package:isbn_reader/domain/book/book.dart';
-import 'package:isbn_reader/infra/book/book_repository.dart';
+import 'package:isbn_scanner/app/book/providers/book_repository_provider.dart';
+import 'package:isbn_scanner/domain/book/book.dart';
+import 'package:isbn_scanner/infra/book/book_repository.dart';
 
 class SavedBooksNotifier extends StateNotifier<List<Book>> {
   final BookRepository bookRepository;

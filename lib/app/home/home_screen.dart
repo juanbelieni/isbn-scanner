@@ -3,9 +3,9 @@ import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:isbn_reader/app/book/book_details_screen.dart';
-import 'package:isbn_reader/app/shared/providers/saved_books_provider.dart';
-import 'package:isbn_reader/domain/book/book.dart';
+import 'package:isbn_scanner/app/book/book_details_screen.dart';
+import 'package:isbn_scanner/app/shared/providers/saved_books_provider.dart';
+import 'package:isbn_scanner/domain/book/book.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -27,18 +27,28 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
+  void _mockScan(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const BookDetailsScreen(
+          isbn: '-1',
+        ),
+      ),
+    );
+  }
+
   Widget _buildEmptyList(BuildContext context) {
-    return Center(
+    return Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(16),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(
-            'assets/images/reading.png',
-            height: 240,
-          ),
-          const SizedBox(height: 24),
+          Image.asset('assets/images/reading.png', height: 240),
+          const SizedBox(height: 8),
           Text(
             'No books saved yet.',
+            textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.w500,
               fontSize: 18,
@@ -49,7 +59,7 @@ class HomeScreen extends ConsumerWidget {
           SizedBox(
             width: 120,
             child: ElevatedButton(
-              onPressed: () => _scan(context),
+              onPressed: () => _mockScan(context),
               style: ElevatedButton.styleFrom(
                 primary: Colors.black,
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -195,7 +205,7 @@ class HomeScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: false,
         title: Text(
-          'ISBN Reader',
+          'ISBN Scanner',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w500,
             fontSize: 18,
