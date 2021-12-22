@@ -23,6 +23,29 @@ class Book implements IBook {
     required this.coverUrl,
   });
 
+  factory Book.fromJson(Map<String, dynamic> json) {
+    return Book(
+      isbn: json['isbn'] as String,
+      title: json['title'] as String,
+      authors: (json['authors'] as List<dynamic>).cast<String>(),
+      rating: json['rating'] as double,
+      description: json['description'] as String,
+      coverUrl: json['coverUrl'] as String,
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'isbn': isbn,
+      'title': title,
+      'authors': authors,
+      'rating': rating,
+      'description': description,
+      'coverUrl': coverUrl,
+    };
+  }
+
   @override
   String toString() {
     return 'Book(title: $title, authors: $authors, rating: $rating, description: ${description.substring(0, 10)}, coverUrl: $coverUrl)';

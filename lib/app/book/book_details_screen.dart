@@ -4,44 +4,82 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:isbn_reader/app/book/book_provider.dart';
+import 'package:isbn_reader/app/book/providers/book_provider.dart';
+import 'package:isbn_reader/app/shared/providers/saved_books_provider.dart';
 import 'package:isbn_reader/domain/book/book.dart';
+import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
-class BookDetailsScreen extends ConsumerWidget {
+
+class BookDetailsScreen extends ConsumerStatefulWidget {
   final String isbn;
 
   const BookDetailsScreen({
-    required this.isbn,
     Key? key,
+    required this.isbn,
   }) : super(key: key);
 
-  String get _amazonUrl =>
-      'https://www.amazon.com/s?k=${isbn.replaceAll('-', '')}';
+  @override
+  _BookDetailsScreenState createState() => _BookDetailsScreenState();
+}
 
-  AppBar _buildAppBar(BuildContext context) {
-    return AppBar(
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-      leading: IconButton(
-        icon: const Icon(Icons.keyboard_arrow_left_rounded, size: 32),
-        color: Colors.black,
-        onPressed: () => Navigator.of(context).pop(),
-      ),
-      automaticallyImplyLeading: false,
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.bookmark_border_outlined),
-          color: Colors.black,
-          onPressed: () => print('Bookmark'),
-        ),
-        const SizedBox(width: 8),
-      ],
+class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
+  @override
+  void initState() {
+    final asyncBook = ref.read(bookProvider(widget.isbn));
+
+    asyncBook.mapOrNull(
+      error: (error) => ref.refresh(bookProvider(widget.isbn)),
     );
+
+    super.initState();
   }
 
-  Widget _buildBookDetails(BuildContext context, Book book) {
+  String _getAmazonSearchUrl(Book book) {
+    return 'https://www.amazon.com/s?k=${book.isbn}';
+  }
+
+  String _getGoodReadsBookUrl(Book book) {
+    return 'https://www.goodreads.com/book/isbn/${book.isbn}';
+  }
+
+  void _handleSave() async {
+    final notifier = ref.read(savedBooksProvider.notifier);
+    final book = ref.read(bookProvider(widget.isbn)).value!;
+    await notifier.toggleBookmark(book);
+
+    final savedBooks = ref.read(savedBooksProvider);
+    final isSaved = savedBooks.any((book) => book.isbn == widget.isbn);
+
+    final message = isSaved
+        ? 'Book added to your saved books'
+        : 'Book removed from your saved books';
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(
+          message,
+          style: GoogleFonts.poppins(fontSize: 14),
+        ),
+      ));
+  }
+
+  void _handleShare() async {
+    final book = ref.read(bookProvider(widget.isbn)).value!;
+
+    final title = book.title;
+    final authors = book.authors.join(', ');
+    final url = _getGoodReadsBookUrl(book);
+
+    final message = '$title by $authors\n\n$url';
+
+    await Share.share(message);
+  }
+
+  Widget _buildBookDetails() {
+    final book = ref.read(bookProvider(widget.isbn)).value!;
+
     return ListView(
-      padding: const EdgeInsets.all(24),
       children: [
         Center(
           child: Container(
@@ -65,7 +103,7 @@ class BookDetailsScreen extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 20),
-        Text(
+        SelectableText(
           book.title,
           textAlign: TextAlign.center,
           style: GoogleFonts.poppins(
@@ -74,8 +112,8 @@ class BookDetailsScreen extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          book.authors[0],
+        SelectableText(
+          book.authors.join(', '),
           textAlign: TextAlign.center,
           style: GoogleFonts.poppins(
             fontSize: 16,
@@ -139,10 +177,7 @@ class BookDetailsScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
         ElevatedButton(
-          onPressed: () {
-            // Redirect to Amazon website
-            launch(_amazonUrl);
-          },
+          onPressed: () => launch(_getAmazonSearchUrl(book)),
           style: ElevatedButton.styleFrom(
             primary: Colors.black,
             padding: const EdgeInsets.all(20),
@@ -162,16 +197,67 @@ class BookDetailsScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildBookError() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset('assets/images/clumsy.png', height: 240),
+          const SizedBox(height: 24),
+          Text(
+            'Oops! Something went wrong.',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w500,
+              fontSize: 18,
+              color: Colors.black,
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final book = ref.watch(bookProvider(isbn));
+  Widget build(BuildContext context) {
+    final asyncBook = ref.watch(bookProvider(widget.isbn));
+    final isBookLoaded = asyncBook.asData != null;
+
+    final savedBooks = ref.watch(savedBooksProvider);
+    final isSaved = savedBooks.any((book) => book.isbn == widget.isbn);
 
     return Scaffold(
-      appBar: _buildAppBar(context),
-      body: book.map(
-        data: (_) => _buildBookDetails(context, _.value),
-        loading: (_) => const Center(child: CircularProgressIndicator()),
-        error: (_) => Center(child: Text(_.error.toString())),
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.keyboard_arrow_left, size: 32),
+          color: Colors.black,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: Icon(isSaved ? Icons.bookmark : Icons.bookmark_outline),
+            color: Colors.black,
+            onPressed: isBookLoaded ? () => _handleSave() : null,
+          ),
+          const SizedBox(width: 4),
+          IconButton(
+            icon: const Icon(Icons.share_outlined),
+            color: Colors.black,
+            onPressed: isBookLoaded ? () => _handleShare() : null,
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        child: asyncBook.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => _buildBookError(),
+          data: (book) => _buildBookDetails(),
+        ),
       ),
     );
   }
