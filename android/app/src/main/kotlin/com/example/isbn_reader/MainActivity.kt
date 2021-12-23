@@ -1,4 +1,4 @@
-package com.example.isbn_scanner
+package com.juanbelieni.isbn_scanner
 
 import io.flutter.embedding.android.FlutterActivity
 

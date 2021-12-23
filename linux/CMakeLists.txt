@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(runner LANGUAGES CXX)
 
 set(BINARY_NAME "isbn_scanner")
-set(APPLICATION_ID "com.example.isbn_scanner")
+set(APPLICATION_ID "com.juanbelieni.isbn_scanner")
 
 cmake_policy(SET CMP0063 NEW)
 

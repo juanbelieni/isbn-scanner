@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.isbn_scanner">
+    package="com.juanbelieni.isbn_scanner">
     <uses-permission android:name="android.permission.INTERNET" />
    <application
-        android:label="isbn_scanner"
+        android:label="ISBN Scanner"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
