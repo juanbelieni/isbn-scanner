@@ -3,8 +3,8 @@ import 'package:isbn_scanner/app/book/providers/book_repository_provider.dart';
 import 'package:isbn_scanner/domain/book/book.dart';
 import 'package:isbn_scanner/infra/book/book_repository.dart';
 
-class SavedBooksNotifier extends StateNotifier<List<Book>> {
-  final BookRepository bookRepository;
+class SavedBooksNotifier extends StateNotifier<List<IBook>> {
+  final IBookRepository bookRepository;
 
   SavedBooksNotifier({required this.bookRepository}) : super([]) {
     loadSavedBooks();
@@ -14,7 +14,7 @@ class SavedBooksNotifier extends StateNotifier<List<Book>> {
     state = await bookRepository.getSavedBooks();
   }
 
-  Future<void> toggleBookmark(Book book) async {
+  Future<void> toggleSavedBook(IBook book) async {
     final isBookmarked = state.any((bookmark) => bookmark.isbn == book.isbn);
 
     if (isBookmarked) {
@@ -25,10 +25,18 @@ class SavedBooksNotifier extends StateNotifier<List<Book>> {
 
     await loadSavedBooks();
   }
+
+  Future<void> updateSavedBook(String isbn, IBook book) async {
+    print('$isbn: ${book.rating}');
+    await bookRepository.updateBook(isbn, book);
+    await loadSavedBooks();
+  }
 }
 
 final savedBooksProvider =
-    StateNotifierProvider<SavedBooksNotifier, List<Book>>((ref) {
-  final bookRepository = ref.read(bookRepositoryProvider);
-  return SavedBooksNotifier(bookRepository: bookRepository);
-});
+    StateNotifierProvider<SavedBooksNotifier, List<IBook>>(
+  (ref) {
+    final bookRepository = ref.read(bookRepositoryProvider);
+    return SavedBooksNotifier(bookRepository: bookRepository);
+  },
+);

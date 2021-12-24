@@ -7,13 +7,13 @@ class App extends StatelessWidget {
 
   Widget _mockBookDetails() {
     // Admirável mundo novo: 8525056006
-    // Darwin sem frescura: 8595084696
-    return const BookDetailsScreen(isbn: '-1');
+    // Darwin sem frescura: 8525056006
+    return const BookDetailsScreen(isbn: '8535914846');
   }
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return  const MaterialApp(
       title: 'ISBN Scanner',
       debugShowCheckedModeBanner: false,
       home: HomeScreen(),

@@ -11,7 +11,7 @@ class BookRepository implements IBookRepository {
   );
 
   @override
-  Future<Book> getBookByIsbn(String isbn) async {
+  Future<IBook> getBookByIsbn(String isbn) async {
     final response = await _http.get('/book/isbn/$isbn');
     final document = parse(response.data);
 
@@ -86,12 +86,24 @@ class BookRepository implements IBookRepository {
   }
 
   @override
+  Future<void> updateBook(String isbn, IBook book) async {
+    final preferences = await SharedPreferences.getInstance();
+    final savedBooks = preferences.getStringList('savedBooks') ?? [];
+
+    final newSavedBooks = savedBooks.map((savedBookJson) {
+      final savedBook = Book.fromJson(json.decode(savedBookJson));
+      if (savedBook.isbn == isbn) return json.encode(book.toJson());
+      return savedBookJson;
+    }).toList();
+
+    preferences.setStringList('savedBooks', newSavedBooks);
+  }
+
+  @override
   Future<List<Book>> getSavedBooks() async {
     final preferences = await SharedPreferences.getInstance();
 
     final savedBooks = preferences.getStringList('savedBooks') ?? [];
-    return savedBooks
-        .map((e) => Book.fromJson(json.decode(e)))
-        .toList();
+    return savedBooks.map((e) => Book.fromJson(json.decode(e))).toList();
   }
 }

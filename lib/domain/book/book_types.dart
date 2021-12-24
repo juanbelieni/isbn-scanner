@@ -13,5 +13,6 @@ abstract class IBookRepository {
   Future<IBook> getBookByIsbn(String isbn);
   Future<void> saveBook(IBook book);
   Future<void> removeBook(IBook book);
+  Future<void> updateBook(String isbn, IBook book);
   Future<List<IBook>> getSavedBooks();
 }

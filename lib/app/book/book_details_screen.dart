@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:isbn_scanner/app/book/providers/book_provider.dart';
 import 'package:isbn_scanner/app/shared/providers/saved_books_provider.dart';
-import 'package:isbn_scanner/domain/book/book.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -27,25 +26,25 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
   void initState() {
     final asyncBook = ref.read(bookProvider(widget.isbn));
 
-    asyncBook.mapOrNull(
-      error: (error) => ref.refresh(bookProvider(widget.isbn)),
+    asyncBook.whenOrNull(
+      error: (error, stack) => ref.refresh(bookProvider(widget.isbn)),
     );
 
     super.initState();
   }
 
-  String _getAmazonSearchUrl(Book book) {
-    return 'https://www.amazon.com/s?k=${book.isbn}';
+  String get _amazonSearchUrl {
+    return 'https://www.amazon.com/s?k=${widget.isbn}';
   }
 
-  String _getGoodReadsBookUrl(Book book) {
-    return 'https://www.goodreads.com/book/isbn/${book.isbn}';
+  String get _goodReadsBookUrl {
+    return 'https://www.goodreads.com/book/isbn/${widget.isbn}';
   }
 
   void _handleSave() async {
     final notifier = ref.read(savedBooksProvider.notifier);
     final book = ref.read(bookProvider(widget.isbn)).value!;
-    await notifier.toggleBookmark(book);
+    await notifier.toggleSavedBook(book);
 
     final savedBooks = ref.read(savedBooksProvider);
     final isSaved = savedBooks.any((book) => book.isbn == widget.isbn);
@@ -69,7 +68,7 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
 
     final title = book.title;
     final authors = book.authors.join(', ');
-    final url = _getGoodReadsBookUrl(book);
+    final url = _goodReadsBookUrl;
 
     final message = '$title by $authors\n\n$url';
 
@@ -182,7 +181,7 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
         ),
         const SizedBox(height: 24),
         ElevatedButton(
-          onPressed: () => launch(_getAmazonSearchUrl(book)),
+          onPressed: () => launch(_amazonSearchUrl),
           style: ElevatedButton.styleFrom(
             primary: Colors.black,
             padding: const EdgeInsets.all(20),

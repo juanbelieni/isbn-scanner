@@ -31,7 +31,7 @@ class HomeScreen extends ConsumerWidget {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => const BookDetailsScreen(
-          isbn: '-1',
+          isbn: '8525056006',
         ),
       ),
     );
@@ -59,7 +59,7 @@ class HomeScreen extends ConsumerWidget {
           SizedBox(
             width: 120,
             child: ElevatedButton(
-              onPressed: () => _mockScan(context),
+              onPressed: () => _scan(context),
               style: ElevatedButton.styleFrom(
                 primary: Colors.black,
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -85,21 +85,25 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildList(BuildContext context, List<Book> books) {
+  Widget _buildList(BuildContext context, List<IBook> books) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Saved Books',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-            color: Colors.black,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'Saved Books',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              fontSize: 20,
+              color: Colors.black,
+            ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         Expanded(
           child: ListView.separated(
+            padding: const EdgeInsets.all(16),
             itemCount: books.length,
             separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
@@ -221,12 +225,9 @@ class HomeScreen extends ConsumerWidget {
           const SizedBox(width: 8),
         ],
       ),
-      body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        child: savedBooks.isEmpty
-            ? _buildEmptyList(context)
-            : _buildList(context, savedBooks),
-      ),
+      body: savedBooks.isEmpty
+          ? _buildEmptyList(context)
+          : _buildList(context, savedBooks),
     );
   }
 }
